@@ -15,6 +15,7 @@ api_urls = [
     path("notifications/", include("apps.notifications.urls")),
     path("categories/", include("apps.categories.urls")),
     path("catalog/sites/", include("apps.catalog_sites.urls")),
+    path("add_user_for_admin/", include("apps.add_user_in_ap.urls")),
 ]
 
 urlpatterns = [
