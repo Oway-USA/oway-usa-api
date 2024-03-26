@@ -7,6 +7,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from apps.users.models import User, PassportFront, PassportBack
 
 from .passport_serializer import PassportFrontSerializer, PassportBackSerializer
+from ...shared.utils.mailing.send_email_change_password import send_email_change_password
 
 
 class SignUpSerializer(serializers.ModelSerializer):
@@ -272,3 +273,18 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
                 PassportBack.objects.create(user=instance, back_image=back_image_data)
 
         return instance
+
+
+class ForgotPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate_email(self, email):
+        if not User.objects.filter(email=email).exists():
+            raise serializers.ValidationError('Пользователь с указанным email не зарегистрирован')
+        return email
+
+    def send_verification_code(self):
+        email = self.validated_data.get('email')
+        user = User.objects.get(email=email)
+        user.create_activation_code()
+        send_email_change_password(user)
